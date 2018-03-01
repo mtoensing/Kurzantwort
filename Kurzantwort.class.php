@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * Version: 1.1
+ *
+ * */
+
 class Kurzantwort {
 
 	public $rows = array();
@@ -7,6 +12,9 @@ class Kurzantwort {
 	public $key = '';
 	public $status = false;
 	public $title = '';
+	public $icon = '';
+	public $text = '';
+	public $matomo_id = '';
 
 	public function loadSpreadsheet() {
 		$url        = 'http://spreadsheets.google.com/feeds/list/' . $this->key . '/' . $this->id . '/public/values?alt=json';
@@ -35,6 +43,21 @@ class Kurzantwort {
 				$this->title = $title_row;
 			}
 
+			$text_row = $row->{'gsx$text'}->{'$t'};
+			if ( $text_row ) {
+				$this->text = $text_row;
+			}
+
+			$icon_row = $row->{'gsx$icon'}->{'$t'};
+			if ( $icon_row ) {
+				$this->icon = $icon_row;
+			}
+
+			$matomo_id_row = $row->{'gsx$matomoid'}->{'$t'};
+			if ( $matomo_id_row ) {
+				$this->matomo_id = $matomo_id_row;
+			}
+
 			if ( strtotime( $from ) < $now && strtotime( $to ) > $now ) {
 				$this->status = true;
 			}
@@ -45,8 +68,28 @@ class Kurzantwort {
 		return $this->title;
 	}
 
+	public function getStatusString(){
+		if($this->status){
+			return 'Ja!';
+		} else {
+			return 'Nein';
+		}
+	}
+
+	public function getIcon(){
+		return $this->icon;
+	}
+
+	public function getMatomo_id(){
+		return $this->matomo_id;
+	}
+
 	public function getStatus(){
 		return $this->status;
+	}
+
+	public function getText(){
+		return $this->text;
 	}
 
 }
