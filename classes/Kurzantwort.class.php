@@ -1,9 +1,11 @@
 <?php
 
 /*
- * Version: 1.1
+ * Version: 1.2
  *
  * */
+
+require_once ('Template.class.php');
 
 class Kurzantwort {
 
@@ -15,6 +17,7 @@ class Kurzantwort {
 	public $icon = '';
 	public $text = '';
 	public $matomo_id = '';
+	public $html = '';
 
 	public function loadSpreadsheet() {
 		$url        = 'http://spreadsheets.google.com/feeds/list/' . $this->key . '/' . $this->id . '/public/values?alt=json';
@@ -28,6 +31,20 @@ class Kurzantwort {
 		$this->id = $id;
 		$this->loadSpreadsheet();
 		$this->parseJSON();
+		$this->parseText();
+
+		$template = new Template('template.php');
+		$template->set('title', $this->title);
+		$template->set('status', $this->getStatusString());
+		$template->set('icon', $this->icon);
+		$template->set('text', $this->text);
+		$template->set('matomo_id', $this->matomo_id);
+
+		$this->html = $template->render();
+	}
+
+	public function render(){
+		return $this->html;
 	}
 
 	public function parseJSON(){
@@ -64,32 +81,18 @@ class Kurzantwort {
 		}
 	}
 
-	public function getTitle(){
-		return $this->title;
-	}
-
 	public function getStatusString(){
 		if($this->status){
-			return 'Ja!';
+			return 'Ja';
 		} else {
 			return 'Nein';
 		}
 	}
 
-	public function getIcon(){
-		return $this->icon;
-	}
+	public function parseText(){
 
-	public function getMatomo_id(){
-		return $this->matomo_id;
-	}
-
-	public function getStatus(){
-		return $this->status;
-	}
-
-	public function getText(){
-		return $this->text;
+		$this->text = str_replace('"', "", $this->text);
+		$this->text = str_replace("'", "", $this->text);
 	}
 
 }
